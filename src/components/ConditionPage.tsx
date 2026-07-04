@@ -431,7 +431,7 @@ export default function ConditionPage({ onComplete }: ConditionPageProps) {
                       <Coins className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold">4. إيداع 250 أو أكثر أو 5$</h4>
+                      <h4 className="text-sm font-bold">4. إيداع 300 أو أكثر أو 10$</h4>
                       <p className="text-xs text-gray-500">تنشيط الإيداع يربط معرفك تلقائياً بقناة VIP للتنين</p>
                     </div>
                   </div>
