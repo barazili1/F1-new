@@ -1,0 +1,6 @@
+{
+  "name": "DRAGON VIP",
+  "description": "A premium predictions companion for 1xbet and MELBET Apple of Fortune game with a futuristic VIP gaming aesthetic.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
