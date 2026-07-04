@@ -3,8 +3,8 @@
 
 @theme {
   --font-sans: "Cairo", system-ui, -apple-system, sans-serif;
-  --font-orbitron: "Orbitron", sans-serif;
-  --font-mono: "Orbitron", "JetBrains Mono", monospace;
+  --font-orbitron: "Cairo", sans-serif;
+  --font-mono: "Cairo", monospace;
   
   --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-glow-blue: glow-blue 2s ease-in-out infinite alternate;

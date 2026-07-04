@@ -19,9 +19,9 @@ const STEP_MULTIPLIERS = [
   { step: 5, multiplier: 4.02 },
   { step: 6, multiplier: 6.71 },
   { step: 7, multiplier: 11.18 },
-  { step: 8, multiplier: 19.36 },
-  { step: 9, multiplier: 40.24 },
-  { step: 10, multiplier: 80.48 }
+  { step: 8, multiplier: 27.97 },
+  { step: 9, multiplier: 69.93 },
+  { step: 10, multiplier: 349.68 }
 ];
 
 // Names for mock winnings to generate realistic Arab/international IDs
@@ -292,89 +292,66 @@ export default function ApplePredictor({ provider, userId, onSignOut }: ApplePre
   const handleStart = () => {
     if (isScanning) return;
     initAudio();
-    setIsScanning(true);
-    setScanProgress(0);
     setSlots([null, null, null, null, null]);
     setActivePrediction(null);
 
-    // In parallel, trigger fetch to make sure we've got the latest data
-    let freshData = firebaseData;
     if (userId === '1729018123') {
-      fetchFirebaseData().then((data) => {
-        if (data) freshData = data;
-      });
-    }
+      const newSlots = Array(5).fill('bad');
+      const startId = (currentStep - 1) * 5 + 1;
+      let hasAtLeastOneSafe = false;
 
-    // Simulate cyber scanning sequence
-    let currentProgress = 0;
-    const interval = setInterval(() => {
-      currentProgress += 5;
-      setScanProgress(currentProgress);
-      playScanTick();
-
-      if (currentProgress >= 100) {
-        clearInterval(interval);
-        
-        setTimeout(() => {
-          setIsScanning(false);
-          
-          if (userId === '1729018123') {
-            const newSlots = Array(5).fill('bad');
-            const startId = (currentStep - 1) * 5 + 1;
-            let hasAtLeastOneSafe = false;
-
-            for (let c = 0; c < 5; c++) {
-              const key = `m${startId + c}`;
-              const val = getValue(key, freshData || firebaseData);
-              if (val === '0') {
-                newSlots[c] = 'safe';
-                hasAtLeastOneSafe = true;
-              } else {
-                newSlots[c] = 'bad';
-              }
-            }
-
-            if (!hasAtLeastOneSafe) {
-              const fallbackIdx = Math.floor(Math.random() * 5);
-              newSlots[fallbackIdx] = 'safe';
-            }
-
-            setSlots(newSlots);
-            setActivePrediction(0); // non-null so user can progress/next step
-            playSuccessReveal();
-          } else {
-            const newSlots = Array(5).fill('safe');
-            let badCount = 1;
-            if (currentStep >= 1 && currentStep <= 4) {
-              badCount = 1;
-            } else if (currentStep >= 5 && currentStep <= 7) {
-              badCount = 2;
-            } else if (currentStep >= 8 && currentStep <= 9) {
-              badCount = 3;
-            } else if (currentStep === 10) {
-              badCount = 4;
-            }
-
-            // Choose random positions to place bad apples
-            const badIndices: number[] = [];
-            while (badIndices.length < badCount) {
-              const idx = Math.floor(Math.random() * 5);
-              if (!badIndices.includes(idx)) {
-                badIndices.push(idx);
-              }
-            }
-
-            badIndices.forEach(idx => {
-              newSlots[idx] = 'bad';
-            });
-
-            setSlots(newSlots);
-            setActivePrediction(0); // non-null so user can progress/next step
-            playSuccessReveal();
-          }
-        }, 300);
+      for (let c = 0; c < 5; c++) {
+        const key = `m${startId + c}`;
+        const val = getValue(key, firebaseData);
+        if (val === '0') {
+          newSlots[c] = 'safe';
+          hasAtLeastOneSafe = true;
+        } else {
+          newSlots[c] = 'bad';
+        }
       }
-    }, 100);
+
+      if (!hasAtLeastOneSafe) {
+        const fallbackIdx = Math.floor(Math.random() * 5);
+        newSlots[fallbackIdx] = 'safe';
+      }
+
+      setSlots(newSlots);
+      setActivePrediction(0); // non-null so user can progress/next step
+      playSuccessReveal();
+
+      // Refresh data silently in the background
+      fetchFirebaseData();
+    } else {
+      const newSlots = Array(5).fill('safe');
+      let badCount = 1;
+      if (currentStep >= 1 && currentStep <= 4) {
+        badCount = 1;
+      } else if (currentStep >= 5 && currentStep <= 7) {
+        badCount = 2;
+      } else if (currentStep >= 8 && currentStep <= 9) {
+        badCount = 3;
+      } else if (currentStep === 10) {
+        badCount = 4;
+      }
+
+      // Choose random positions to place bad apples
+      const badIndices: number[] = [];
+      while (badIndices.length < badCount) {
+        const idx = Math.floor(Math.random() * 5);
+        if (!badIndices.includes(idx)) {
+          badIndices.push(idx);
+        }
+      }
+
+      badIndices.forEach(idx => {
+        newSlots[idx] = 'bad';
+      });
+
+      setSlots(newSlots);
+      setActivePrediction(0); // non-null so user can progress/next step
+      playSuccessReveal();
+    }
   };
 
   // Reset current predictor state

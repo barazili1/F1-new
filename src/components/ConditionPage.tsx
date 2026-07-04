@@ -70,12 +70,7 @@ export default function ConditionPage({ onComplete }: ConditionPageProps) {
       setErrors(`كلمة المرور غير صحيحة! كلمة المرور هي البروموكود: ${activePromo}`);
       return;
     }
-    // Note: Subscription steps (Telegram, YouTube) are now optional as requested!
-    if (!deposited) {
-      setErrors('يرجى تأكيد إيداع مبلغ 250 جنيه أو 5$ على الأقل في حسابك');
-      return;
-    }
-
+    // Note: Subscription steps (Telegram, YouTube) and deposit confirmation are now optional as requested!
     // All checks passed! Trigger loading dialog
     setIsLoadingDialog(true);
     setLoadingStep(0);
@@ -232,109 +227,98 @@ export default function ConditionPage({ onComplete }: ConditionPageProps) {
           </p>
         </div>
 
-        {/* --- PROVIDER SELECTION --- */}
-        <AnimatePresence mode="wait">
-          {!selectedProvider ? (
-            <motion.div 
-              key="selection"
-              initial={{ opacity: 0, y: 25, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -25, scale: 0.95 }}
-              transition={{ type: "spring", stiffness: 100, damping: 15 }}
-              className="grid grid-cols-2 gap-5 w-full"
-            >
-              {/* 1xbet Card */}
-              <button
-                id="btn-provider-1xbet"
-                onClick={() => setSelectedProvider('1xbet')}
-                className="group relative aspect-square flex flex-col items-center justify-center p-6 bg-gradient-to-b from-[#050f26] via-[#020714] to-[#01030a] border-2 border-blue-500 rounded-3xl cursor-pointer hover:scale-[1.05] active:scale-95 transition-all duration-300 shadow-[0_10px_30px_rgba(59,130,246,0.15)] hover:shadow-[0_0_50px_rgba(59,130,246,0.35)] animate-glow-blue overflow-hidden"
+        {/* --- MAIN UNIFIED CARD --- */}
+        <div className="w-full bg-black/30 backdrop-blur-md border border-white/10 rounded-2xl p-5 md:p-6 shadow-xl relative overflow-hidden">
+          {/* Top subtle glow bar */}
+          <div className="absolute left-0 right-0 top-0 h-[2px] bg-gradient-to-r from-blue-500 via-purple-500 to-amber-500 opacity-60" />
+
+          <AnimatePresence mode="wait">
+            {!selectedProvider ? (
+              <motion.div 
+                key="selection"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.2 }}
+                className="grid grid-cols-2 gap-4 w-full"
               >
-                {/* Decorative particles & glowing light sweep */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] pointer-events-none" />
-                <div className="absolute top-3 right-3 bg-blue-500/20 text-blue-400 text-[9px] uppercase font-black tracking-widest px-2.5 py-1 rounded-full border border-blue-500/30">
-                  VIP BLUE
-                </div>
-
-                {/* Word 1xbet at the top */}
-                <span className="text-3xl font-black tracking-widest text-white group-hover:text-blue-300 transition-colors duration-300 mb-4 font-sans">
-                  1xbet
-                </span>
-
-                {/* Circular logo under the word */}
-                <div className="relative w-20 h-20 rounded-full flex items-center justify-center bg-blue-950/40 border-2 border-blue-500/30 group-hover:border-blue-400 group-hover:scale-110 group-hover:bg-blue-900/30 transition-all duration-500 overflow-hidden shadow-[0_0_15px_rgba(59,130,246,0.15)] group-hover:shadow-[0_0_30px_rgba(59,130,246,0.4)]">
-                  {/* Rotating dashed ring */}
-                  <div className="absolute inset-0.5 rounded-full border border-dashed border-blue-400/30 animate-spin" style={{ animationDuration: '6s' }} />
-                  {/* Glowing center indicator with image */}
-                  <div className="w-16 h-16 rounded-full overflow-hidden bg-blue-500/10 flex items-center justify-center border border-blue-500/20 group-hover:border-blue-400/40 transition-colors duration-300">
-                    <img
-                      src="https://i.pinimg.com/736x/85/09/2e/85092e36302014dac2140125ca9e706f.jpg"
-                      alt="1xbet Logo"
-                      className="w-full h-full object-cover"
-                      referrerPolicy="no-referrer"
-                    />
-                  </div>
-                </div>
-              </button>
-
-              {/* MELBET Card */}
-              <button
-                id="btn-provider-melbet"
-                onClick={() => setSelectedProvider('melbet')}
-                className="group relative aspect-square flex flex-col items-center justify-center p-6 bg-gradient-to-b from-[#1c1405] via-[#0d0902] to-[#050301] border-2 border-amber-400 rounded-3xl cursor-pointer hover:scale-[1.05] active:scale-95 transition-all duration-300 shadow-[0_10px_30px_rgba(245,158,11,0.15)] hover:shadow-[0_0_50px_rgba(245,158,11,0.35)] animate-glow-yellow overflow-hidden"
-              >
-                {/* Decorative particles & glowing light sweep */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] pointer-events-none" />
-                <div className="absolute top-3 right-3 bg-amber-500/20 text-amber-400 text-[9px] uppercase font-black tracking-widest px-2.5 py-1 rounded-full border border-amber-500/30">
-                  VIP GOLD
-                </div>
-
-                {/* Word MELBET at the top */}
-                <span className="text-3xl font-black tracking-widest text-white group-hover:text-amber-300 transition-colors duration-300 mb-4 font-sans">
-                  MELBET
-                </span>
-
-                {/* Circular logo under the word */}
-                <div className="relative w-20 h-20 rounded-full flex items-center justify-center bg-amber-950/40 border-2 border-amber-500/30 group-hover:border-amber-400 group-hover:scale-110 group-hover:bg-amber-900/30 transition-all duration-500 overflow-hidden shadow-[0_0_15px_rgba(245,158,11,0.15)] group-hover:shadow-[0_0_30px_rgba(245,158,11,0.4)]">
-                  {/* Rotating dashed ring */}
-                  <div className="absolute inset-0.5 rounded-full border border-dashed border-amber-400/30 animate-spin" style={{ animationDuration: '6s' }} />
-                  {/* Glowing center indicator with image */}
-                  <div className="w-16 h-16 rounded-full overflow-hidden bg-amber-500/10 flex items-center justify-center border border-amber-500/20 group-hover:border-amber-400/40 transition-colors duration-300">
-                    <img
-                      src="https://i.pinimg.com/736x/c3/b4/dd/c3b4dd80d6037256492166ffa8fee192.jpg"
-                      alt="Melbet Logo"
-                      className="w-full h-full object-cover"
-                      referrerPolicy="no-referrer"
-                    />
-                  </div>
-                </div>
-              </button>
-            </motion.div>
-          ) : (
-            /* --- CONDITIONS VIEW --- */
-            <motion.div
-              key="conditions"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="w-full bg-black/30 backdrop-blur-md border border-white/10 rounded-2xl p-5 md:p-6 shadow-xl"
-            >
-              {/* Back button to change provider */}
-              <div className="flex justify-between items-center mb-6 border-b border-gray-900 pb-4">
-                <div className="flex items-center gap-2">
-                  <div className={`w-3.5 h-3.5 rounded-full ${selectedProvider === '1xbet' ? 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]' : 'bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.8)]'}`} />
-                  <span className="text-sm font-bold text-gray-300">منصة التشغيل: <span className={theme.text + ' font-black text-base uppercase'}>{selectedProvider}</span></span>
-                </div>
-                <button 
-                  onClick={() => {
-                    setSelectedProvider(null);
-                    setErrors(null);
-                  }}
-                  className="text-xs text-gray-500 hover:text-white flex items-center gap-1 bg-gray-950/80 hover:bg-gray-900 px-3 py-1.5 rounded-lg border border-gray-800 transition-colors cursor-pointer"
+                {/* 1xbet Card */}
+                <button
+                  id="btn-provider-1xbet"
+                  onClick={() => setSelectedProvider('1xbet')}
+                  className="group relative aspect-square flex flex-col items-center justify-center p-5 bg-gradient-to-b from-[#050f26]/40 via-[#020714]/40 to-[#01030a]/40 border-2 border-blue-500 rounded-2xl cursor-pointer hover:scale-[1.03] active:scale-95 transition-all duration-300 shadow-[0_10px_25px_rgba(59,130,246,0.1)] hover:shadow-[0_0_40px_rgba(59,130,246,0.25)] overflow-hidden"
                 >
-                  تغيير المنصة
-                  <ArrowRight className="w-3.5 h-3.5 rotate-180" />
+                  <div className="absolute top-2 right-2 bg-blue-500/20 text-blue-400 text-[8px] uppercase font-black tracking-widest px-2 py-0.5 rounded-full border border-blue-500/30">
+                    BLUE
+                  </div>
+                  <span className="text-2xl font-black tracking-wider text-white group-hover:text-blue-300 transition-colors duration-300 mb-3 font-sans">
+                    1xbet
+                  </span>
+                  <div className="relative w-16 h-16 rounded-full flex items-center justify-center bg-blue-950/40 border-2 border-blue-500/30 group-hover:border-blue-400 group-hover:scale-110 group-hover:bg-blue-900/30 transition-all duration-500 overflow-hidden shadow-[0_0_15px_rgba(59,130,246,0.15)] group-hover:shadow-[0_0_30px_rgba(59,130,246,0.4)]">
+                    <div className="absolute inset-0.5 rounded-full border border-dashed border-blue-400/30 animate-spin" style={{ animationDuration: '6s' }} />
+                    <div className="w-12 h-12 rounded-full overflow-hidden bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
+                      <img
+                        src="https://i.pinimg.com/736x/85/09/2e/85092e36302014dac2140125ca9e706f.jpg"
+                        alt="1xbet Logo"
+                        className="w-full h-full object-cover"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                  </div>
                 </button>
-              </div>
+
+                {/* MELBET Card */}
+                <button
+                  id="btn-provider-melbet"
+                  onClick={() => setSelectedProvider('melbet')}
+                  className="group relative aspect-square flex flex-col items-center justify-center p-5 bg-gradient-to-b from-[#1c1405]/40 via-[#0d0902]/40 to-[#050301]/40 border-2 border-amber-400 rounded-2xl cursor-pointer hover:scale-[1.03] active:scale-95 transition-all duration-300 shadow-[0_10px_25px_rgba(245,158,11,0.1)] hover:shadow-[0_0_40px_rgba(245,158,11,0.25)] overflow-hidden"
+                >
+                  <div className="absolute top-2 right-2 bg-amber-500/20 text-amber-400 text-[8px] uppercase font-black tracking-widest px-2 py-0.5 rounded-full border border-amber-500/30">
+                    GOLD
+                  </div>
+                  <span className="text-2xl font-black tracking-wider text-white group-hover:text-amber-300 transition-colors duration-300 mb-3 font-sans">
+                    MELBET
+                  </span>
+                  <div className="relative w-16 h-16 rounded-full flex items-center justify-center bg-amber-950/40 border-2 border-amber-400/30 group-hover:border-amber-400 group-hover:scale-110 group-hover:bg-amber-900/30 transition-all duration-500 overflow-hidden shadow-[0_0_15px_rgba(245,158,11,0.15)] group-hover:shadow-[0_0_30px_rgba(245,158,11,0.4)]">
+                    <div className="absolute inset-0.5 rounded-full border border-dashed border-amber-400/30 animate-spin" style={{ animationDuration: '6s' }} />
+                    <div className="w-12 h-12 rounded-full overflow-hidden bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
+                      <img
+                        src="https://i.pinimg.com/736x/c3/b4/dd/c3b4dd80d6037256492166ffa8fee192.jpg"
+                        alt="Melbet Logo"
+                        className="w-full h-full object-cover"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                  </div>
+                </button>
+              </motion.div>
+            ) : (
+              /* --- CONDITIONS VIEW --- */
+              <motion.div
+                key="conditions"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.2 }}
+                className="w-full bg-transparent"
+              >
+                {/* Back button to change provider */}
+                <div className="flex justify-between items-center mb-6 border-b border-gray-900 pb-4">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-3.5 h-3.5 rounded-full ${selectedProvider === '1xbet' ? 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]' : 'bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.8)]'}`} />
+                    <span className="text-sm font-bold text-gray-300">منصة التشغيل: <span className={theme.text + ' font-black text-base uppercase'}>{selectedProvider}</span></span>
+                  </div>
+                  <button 
+                    onClick={() => {
+                      setSelectedProvider(null);
+                      setErrors(null);
+                    }}
+                    className="text-xs text-gray-500 hover:text-white flex items-center gap-1 bg-gray-950/80 hover:bg-gray-900 px-3 py-1.5 rounded-lg border border-gray-800 transition-colors cursor-pointer"
+                  >
+                    تغيير المنصة
+                    <ArrowRight className="w-3.5 h-3.5 rotate-180" />
+                  </button>
+                </div>
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 
@@ -540,6 +524,7 @@ export default function ConditionPage({ onComplete }: ConditionPageProps) {
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
       </main>
 
       {/* --- LOADING DIALOG (ديالوج تحميل) --- */}
