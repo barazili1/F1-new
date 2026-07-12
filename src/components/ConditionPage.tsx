@@ -398,7 +398,7 @@ export default function ConditionPage({ onComplete }: ConditionPageProps) {
                     <button
                       type="button"
                       onClick={() => {
-                        window.open('https://t.me/THEAGLE', '_blank');
+                        window.open('https://t.me/THEAGLE2', '_blank');
                         setTelegramJoined(true);
                       }}
                       className={`px-3 py-2 rounded-xl text-[11px] font-black transition-all duration-300 flex items-center gap-1 flex-shrink-0 cursor-pointer ${

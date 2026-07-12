@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { RotateCcw, Play, Sparkles, Trophy, ChevronRight, LogOut } from 'lucide-react';
+import { RotateCcw, Play, Sparkles, Trophy, ChevronRight, LogOut, MessageCircle } from 'lucide-react';
 const logoUrl = 'https://plain-eeur-prod-public.komododecks.com/202606/24/Bdn19OZTrlYXQS8dLPf7/image.jpg';
 import { Provider, WinningRecord } from '../types';
 
@@ -721,6 +721,28 @@ export default function ApplePredictor({ provider, userId, onSignOut }: ApplePre
         </div>
 
       </main>
+
+      {/* Floating Support Button */}
+      <motion.button
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 0.5, type: 'spring', stiffness: 260, damping: 20 }}
+        onClick={() => window.open('https://t.me/uugvf', '_blank')}
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-tr from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 rounded-full flex items-center justify-center border border-red-500/30 text-white shadow-[0_4px_20px_rgba(220,38,38,0.4)] hover:shadow-[0_4px_30px_rgba(220,38,38,0.6)] cursor-pointer hover:scale-110 active:scale-95 transition-all group"
+        title="الدعم الفني"
+      >
+        {/* Pulsing Outer Glow */}
+        <span className="absolute inset-0 rounded-full bg-red-600/30 animate-ping opacity-75" />
+        
+        {/* Support Chat Icon */}
+        <MessageCircle className="w-6 h-6 relative z-10 transition-transform duration-300 group-hover:rotate-12" />
+        
+        {/* Hover label */}
+        <span className="absolute right-16 bg-[#040406]/90 border border-red-500/25 text-red-500 text-[10px] font-black tracking-wider px-2.5 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+          الدعم الفني VIP
+        </span>
+      </motion.button>
+
     </div>
   );
 }
