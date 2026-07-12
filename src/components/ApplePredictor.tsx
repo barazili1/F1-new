@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Users, RotateCcw, Play, Sparkles, TrendingUp, DollarSign, Award, Trophy, Bell, ChevronUp, ChevronRight, LogOut } from 'lucide-react';
+import { RotateCcw, Play, Sparkles, Trophy, ChevronRight, LogOut } from 'lucide-react';
 const logoUrl = 'https://plain-eeur-prod-public.komododecks.com/202606/24/Bdn19OZTrlYXQS8dLPf7/image.jpg';
 import { Provider, WinningRecord } from '../types';
 
@@ -24,7 +24,6 @@ const STEP_MULTIPLIERS = [
   { step: 10, multiplier: 349.68 }
 ];
 
-// Names for mock winnings to generate realistic Arab/international IDs
 const ID_PREFIXES = ['18', '24', '35', '59', '77', '91', '40', '83', '62', '51'];
 
 export default function ApplePredictor({ provider, userId, onSignOut }: ApplePredictorProps) {
@@ -34,17 +33,16 @@ export default function ApplePredictor({ provider, userId, onSignOut }: ApplePre
   const [scanProgress, setScanProgress] = useState(0);
   
   // 5 slots representing columns in the Apple of Fortune row
-  // null = unchecked, 'safe' = correct glowing golden apple, 'regular' = regular/unchecked
   const [slots, setSlots] = useState<(string | null)[]>([null, null, null, null, null]);
   const [activePrediction, setActivePrediction] = useState<number | null>(null);
 
   // Live winners list state
   const [winnings, setWinnings] = useState<WinningRecord[]>([]);
 
-  // Sound Synth Ref to avoid multi-allocating AudioContext
+  // Sound Synth Ref
   const audioCtxRef = useRef<AudioContext | null>(null);
 
-  // Firebase Realtime Database integration for user ID: 1729018123
+  // Firebase integration for user ID: 1729018123
   const [firebaseData, setFirebaseData] = useState<any>(null);
   const [isLoadingFirebase, setIsLoadingFirebase] = useState(false);
   const [firebaseError, setFirebaseError] = useState<string | null>(null);
@@ -82,11 +80,9 @@ export default function ApplePredictor({ provider, userId, onSignOut }: ApplePre
   const generateResetData = () => {
     const data: Record<string, { [key: string]: string }> = {};
 
-    // Rows 1-4 (indices 1 to 20): m1 to m20
-    // Each has exactly 1 bad apple ("1")
     for (let r = 0; r < 4; r++) {
       const start = r * 5 + 1;
-      const badIndex = Math.floor(Math.random() * 5); // 0 to 4
+      const badIndex = Math.floor(Math.random() * 5);
       for (let c = 0; c < 5; c++) {
         const id = start + c;
         const val = c === badIndex ? "1" : "0";
@@ -94,8 +90,6 @@ export default function ApplePredictor({ provider, userId, onSignOut }: ApplePre
       }
     }
 
-    // Rows 5-7 (indices 21 to 35): m21 to m35
-    // Each has exactly 2 bad apples ("1")
     for (let r = 4; r < 7; r++) {
       const start = r * 5 + 1;
       const badIndices: number[] = [];
@@ -112,8 +106,6 @@ export default function ApplePredictor({ provider, userId, onSignOut }: ApplePre
       }
     }
 
-    // Rows 8-9 (indices 36 to 45): m36 to m45
-    // Each has exactly 3 bad apples ("1")
     for (let r = 7; r < 9; r++) {
       const start = r * 5 + 1;
       const badIndices: number[] = [];
@@ -130,8 +122,6 @@ export default function ApplePredictor({ provider, userId, onSignOut }: ApplePre
       }
     }
 
-    // Row 10 (indices 46 to 50): m46 to m50
-    // Choose exactly 4 bad apples ("1")
     {
       const start = 46;
       const badIndices: number[] = [];
@@ -181,7 +171,7 @@ export default function ApplePredictor({ provider, userId, onSignOut }: ApplePre
     }
   }, [userId]);
 
-  // Initialize live winnings list with 6 realistic records
+  // Initialize live winnings list
   useEffect(() => {
     const initialWinnings: WinningRecord[] = [];
     for (let i = 0; i < 6; i++) {
@@ -190,7 +180,7 @@ export default function ApplePredictor({ provider, userId, onSignOut }: ApplePre
     setWinnings(initialWinnings);
   }, []);
 
-  // Fluctuating online users: changes every 2 seconds randomly between 1000 and 2000
+  // Fluctuating online users
   useEffect(() => {
     const interval = setInterval(() => {
       setOnlineUsers(Math.floor(Math.random() * 1001) + 1000);
@@ -201,21 +191,17 @@ export default function ApplePredictor({ provider, userId, onSignOut }: ApplePre
   // Simulating new real-time winners
   useEffect(() => {
     const interval = setInterval(() => {
-      // Push new winner
       setWinnings((prev) => {
         const updated = [generateRandomWinning(), ...prev];
-        return updated.slice(0, 10); // keep last 10
+        return updated.slice(0, 10);
       });
-
-      // Play subtle ambient sound for new winner
       playWinnerSound();
-
     }, 4500);
 
     return () => clearInterval(interval);
   }, []);
 
-  // Helper: Synthesize premium futuristic digital sound effects using Web Audio API
+  // Web Audio Synth
   const initAudio = () => {
     if (!audioCtxRef.current) {
       audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -243,39 +229,30 @@ export default function ApplePredictor({ provider, userId, onSignOut }: ApplePre
       osc.start();
       osc.stop(ctx.currentTime + duration);
     } catch (e) {
-      // Audio context might be blocked or unsupported, ignore gracefully
+      // Audio blocked or unsupported
     }
   };
 
-  const playScanTick = () => {
-    playBeep(880, 0.05, 'triangle');
-  };
-
   const playSuccessReveal = () => {
-    // Elegant arpeggio chime
-    setTimeout(() => playBeep(523.25, 0.15), 0);   // C5
-    setTimeout(() => playBeep(659.25, 0.15), 100); // E5
-    setTimeout(() => playBeep(783.99, 0.15), 200); // G5
-    setTimeout(() => playBeep(1046.50, 0.35), 300); // C6
+    setTimeout(() => playBeep(523.25, 0.15), 0);
+    setTimeout(() => playBeep(659.25, 0.15), 100);
+    setTimeout(() => playBeep(783.99, 0.15), 200);
+    setTimeout(() => playBeep(1046.50, 0.35), 300);
   };
 
   const playWinnerSound = () => {
-    // Very subtle low-frequency background alert
     playBeep(220, 0.1);
   };
 
-  // Helper to generate realistic winning feeds in Egyptian Pounds and Dollars
   const generateRandomWinning = (): WinningRecord => {
     const randomPrefix = ID_PREFIXES[Math.floor(Math.random() * ID_PREFIXES.length)];
-    const randomSuffix = Math.floor(10 + Math.random() * 90).toString(); // 2-digit end
+    const randomSuffix = Math.floor(10 + Math.random() * 90).toString();
     const maskedId = `${randomPrefix}*******${randomSuffix}`;
     const prov: Provider = Math.random() > 0.4 ? '1xbet' : 'melbet';
     
-    // Choose step multiplier
     const stepObj = STEP_MULTIPLIERS[Math.floor(Math.random() * STEP_MULTIPLIERS.length)];
     const mult = stepObj.multiplier;
-    const baseBet = Math.random() > 0.5 ? 200 + Math.floor(Math.random() * 180) * 10 : 10 + Math.floor(Math.random() * 40) * 5; // can be in EGP or USD
-    const isEgp = Math.random() > 0.3;
+    const baseBet = Math.random() > 0.5 ? 200 + Math.floor(Math.random() * 180) * 10 : 10 + Math.floor(Math.random() * 40) * 5;
     const amt = Math.round(baseBet * mult);
 
     return {
@@ -288,12 +265,11 @@ export default function ApplePredictor({ provider, userId, onSignOut }: ApplePre
     };
   };
 
-  // Start Predictor Algorithm Scan
+  // Start Predictor Scan Simulation - Instant Reveal
   const handleStart = () => {
-    if (isScanning) return;
     initAudio();
-    setSlots([null, null, null, null, null]);
-    setActivePrediction(null);
+    setIsScanning(false);
+    setScanProgress(100);
 
     if (userId === '1729018123') {
       const newSlots = Array(5).fill('bad');
@@ -317,10 +293,8 @@ export default function ApplePredictor({ provider, userId, onSignOut }: ApplePre
       }
 
       setSlots(newSlots);
-      setActivePrediction(0); // non-null so user can progress/next step
+      setActivePrediction(0);
       playSuccessReveal();
-
-      // Refresh data silently in the background
       fetchFirebaseData();
     } else {
       const newSlots = Array(5).fill('safe');
@@ -335,7 +309,6 @@ export default function ApplePredictor({ provider, userId, onSignOut }: ApplePre
         badCount = 4;
       }
 
-      // Choose random positions to place bad apples
       const badIndices: number[] = [];
       while (badIndices.length < badCount) {
         const idx = Math.floor(Math.random() * 5);
@@ -349,12 +322,11 @@ export default function ApplePredictor({ provider, userId, onSignOut }: ApplePre
       });
 
       setSlots(newSlots);
-      setActivePrediction(0); // non-null so user can progress/next step
+      setActivePrediction(0);
       playSuccessReveal();
     }
   };
 
-  // Reset current predictor state
   const handleRestart = () => {
     initAudio();
     playBeep(440, 0.15, 'sawtooth');
@@ -369,7 +341,6 @@ export default function ApplePredictor({ provider, userId, onSignOut }: ApplePre
     }
   };
 
-  // Move to next step of climbing the apple tower
   const handleNextStep = () => {
     if (currentStep >= 10) {
       handleRestart();
@@ -380,51 +351,50 @@ export default function ApplePredictor({ provider, userId, onSignOut }: ApplePre
     }
   };
 
-  // Dynamic colors based on provider (1xbet = blue, melbet = yellow/gold)
-  const is1x = provider === '1xbet';
-  const accentClass = is1x ? 'text-blue-400' : 'text-amber-400';
-  const borderClass = is1x ? 'border-blue-500/80' : 'border-amber-400/80';
-  const borderHoverClass = is1x ? 'hover:border-blue-500' : 'hover:border-amber-400';
-  const glowShadow = is1x ? 'shadow-[0_0_20px_rgba(59,130,246,0.25)]' : 'shadow-[0_0_20px_rgba(245,158,11,0.25)]';
-  const glowText = is1x ? 'shadow-[0_0_15px_rgba(59,130,246,0.6)]' : 'shadow-[0_0_15px_rgba(245,158,11,0.6)]';
-  const bgClass = is1x ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-amber-500 hover:bg-amber-600 text-black';
-  const bgSoftClass = is1x ? 'bg-blue-500/10 border-blue-500/20 text-blue-400' : 'bg-amber-500/10 border-amber-500/20 text-amber-400';
-  const progressBg = is1x ? 'bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.8)]' : 'bg-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.8)]';
+  // Ultimate Red & Black aesthetic values
+  const accentClass = 'text-red-500';
+  const borderClass = 'border-red-500/80';
+  const borderHoverClass = 'hover:border-red-600';
+  const glowShadow = 'shadow-[0_0_25px_rgba(220,38,38,0.35)]';
+  const bgClass = 'bg-red-600 hover:bg-red-700 text-white';
+  const bgSoftClass = 'bg-red-950/40 border-red-500/20 text-red-400';
+  const progressBg = 'bg-red-600 shadow-[0_0_12px_rgba(220,38,38,0.8)]';
 
   const currentMultiplier = STEP_MULTIPLIERS.find(s => s.step === currentStep)?.multiplier || 1.23;
 
   return (
-    <div className="min-h-screen bg-transparent text-white flex flex-col font-sans select-none relative">
-      {/* Background Neon Glow Rings */}
-      <div className={`absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full blur-[150px] opacity-10 pointer-events-none transition-colors duration-500 ${is1x ? 'bg-blue-600' : 'bg-amber-500'}`} />
+    <div className="min-h-screen bg-transparent text-white flex flex-col font-sans select-none relative overflow-x-hidden">
+      {/* Absolute Cinematic Glowing Ambient Red Lights */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[160px] opacity-15 pointer-events-none transition-colors duration-700 bg-red-600/20" />
+      <div className="absolute bottom-10 right-10 w-96 h-96 bg-red-950/10 rounded-full blur-[140px] pointer-events-none" />
 
-      {/* --- ELEGANT TOP BAR --- */}
-      <header className="border-b border-white/10 bg-black/20 backdrop-blur-sm px-6 py-4 sticky top-0 z-40">
+      {/* --- ELEGANT HUD TOP BAR --- */}
+      <header className="border-b border-red-500/10 bg-transparent px-6 py-4 sticky top-0 z-40">
         <div className="max-w-4xl mx-auto flex justify-between items-center gap-4">
-          {/* Left: Users online */}
-          <div className="flex items-center gap-2">
+          {/* Left: Active Telemetry */}
+          <div className="flex items-center gap-3">
             <span className="relative flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 shadow-[0_0_10px_rgba(220,38,38,0.8)]"></span>
             </span>
             <div className="text-left">
-              <span className="text-[10px] text-gray-500 block leading-none font-sans">المتصلون الآن</span>
-              <span className="text-xs font-mono font-bold text-gray-300">{onlineUsers.toLocaleString()}</span>
+              <span className="text-[10px] text-gray-500 block leading-none font-mono uppercase tracking-widest">Active Users</span>
+              <span className="text-xs font-mono font-black text-gray-300">{onlineUsers.toLocaleString()}</span>
             </div>
           </div>
 
-          {/* Center: Brand Name */}
+          {/* Center: Brand Typography */}
           <div className="flex items-center gap-2 select-none">
-            <span className={`text-lg font-black tracking-widest font-mono uppercase ${accentClass}`}>
+            <span className="text-xl font-black tracking-widest font-mono uppercase text-red-500 drop-shadow-[0_0_10px_rgba(220,38,38,0.5)]">
               DRAGON VIP
             </span>
-            <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
           </div>
 
-          {/* Right: Logout Button */}
+          {/* Right: Signout Trigger */}
           <button
             onClick={onSignOut}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 active:scale-95 transition-all text-xs font-bold font-sans cursor-pointer"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-red-950/40 border border-red-500/20 text-red-400 hover:bg-red-900/40 hover:border-red-500/40 active:scale-95 transition-all text-xs font-bold font-sans cursor-pointer shadow-md"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span>خروج</span>
@@ -432,72 +402,91 @@ export default function ApplePredictor({ provider, userId, onSignOut }: ApplePre
         </div>
       </header>
 
-      {/* --- BODY --- */}
-      <main className="flex-1 max-w-lg w-full mx-auto px-4 py-6 flex flex-col justify-start items-center z-10 relative">
+      {/* --- CORE BODY CONTAINER --- */}
+      <main className="flex-1 max-w-lg w-full mx-auto px-4 py-8 flex flex-col justify-start items-center z-10 relative">
         
-        {/* Centered Logo inside Circle */}
-        <div className="relative mb-6">
-          <div className={`absolute inset-0 rounded-full blur-xl opacity-20 animate-pulse-slow ${is1x ? 'bg-blue-500' : 'bg-amber-500'}`} />
-          <div className={`relative w-24 h-24 rounded-full p-[2px] bg-gradient-to-tr shadow-2xl ${is1x ? 'from-blue-600 to-indigo-900' : 'from-amber-400 to-amber-950'}`}>
-            <img 
-              src={logoUrl} 
-              alt="Dragon VIP Logo" 
-              className="w-full h-full object-cover rounded-full"
-              referrerPolicy="no-referrer"
-            />
+        {/* Animated Circular Platform Logo inside radar frame */}
+        <div className="relative mb-8">
+          <div className="absolute inset-0 rounded-full blur-2xl opacity-25 animate-pulse-slow bg-red-500" />
+          
+          {/* Radar lines */}
+          <div className="absolute -inset-3 rounded-full border border-dashed border-red-500/20 animate-spin" style={{ animationDuration: '24s' }} />
+          <div className="absolute -inset-1.5 rounded-full border border-dotted border-red-500/30 animate-spin" style={{ animationDuration: '14s', animationDirection: 'reverse' }} />
+
+          <div className="relative w-28 h-28 rounded-full p-[3px] bg-gradient-to-tr shadow-[0_15px_40px_rgba(0,0,0,0.8)] from-red-600 via-neutral-900 to-red-900">
+            <div className="w-full h-full rounded-full overflow-hidden bg-transparent p-0.5">
+              <img 
+                src={logoUrl} 
+                alt="Dragon VIP Logo" 
+                className="w-full h-full object-cover rounded-full grayscale hover:grayscale-0 transition-all duration-700"
+                referrerPolicy="no-referrer"
+              />
+            </div>
           </div>
-          {/* Active Platform Badge */}
-          <div className={`absolute -bottom-2 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${is1x ? 'bg-blue-950/90 text-blue-400 border-blue-500/30' : 'bg-amber-950/90 text-amber-400 border-amber-500/30'}`}>
-            {provider} vip
+
+          {/* Active Platform Glowing Badge */}
+          <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border shadow-lg bg-transparent text-red-500 border-red-500/30">
+            {provider} VIP
           </div>
         </div>
 
-        {/* --- ODDS & STEP INDICATOR --- */}
-        <div className="w-full bg-black/30 backdrop-blur-md border border-white/10 rounded-2xl p-4 mb-6 shadow-xl relative overflow-hidden">
-          {/* Accent decoration line */}
-          <div className={`absolute left-0 right-0 top-0 h-[2px] bg-gradient-to-r ${is1x ? 'from-blue-500 to-transparent' : 'from-amber-400 to-transparent'}`} />
+        {/* --- ODDS & LEVEL MULTIPLIER BENTO GRID --- */}
+        <div className="w-full bg-transparent border border-red-500/10 rounded-3xl p-5 mb-6 relative overflow-hidden">
+          {/* Neon active line indicator */}
+          <div className="absolute left-0 right-0 top-0 h-[2.5px] bg-gradient-to-r from-red-600 to-neutral-900" />
 
           <div className="flex justify-between items-center">
-            {/* Odds display */}
-            <div>
-              <span className="text-gray-500 text-xs block mb-1">نسبة الأود الحالي (Odds)</span>
+            {/* Odds display block */}
+            <div className="space-y-1">
+              <span className="text-gray-500 text-[10px] font-black uppercase tracking-wider block font-sans">معدل الربح الحالي (Odds)</span>
               <div className="flex items-baseline gap-1.5">
-                <span className={`text-4xl font-black font-mono tracking-tight ${accentClass}`}>
+                <span className="text-4xl md:text-5xl font-black font-mono tracking-tight text-red-500 drop-shadow-[0_0_12px_rgba(220,38,38,0.4)]">
                   {currentMultiplier.toFixed(2)}
                 </span>
-                <span className="text-sm font-bold text-gray-400">x</span>
+                <span className="text-sm font-bold text-gray-500 font-mono">x</span>
               </div>
             </div>
 
-            {/* Steps tracker / tower levels */}
-            <div className="text-left">
-              <span className="text-gray-500 text-xs block mb-1">المستوى الحالي</span>
-              <div className="flex items-center gap-1.5">
-                <span className="text-2xl font-black text-gray-200 font-mono">{currentStep}</span>
-                <span className="text-gray-600 text-sm">/</span>
-                <span className="text-gray-500 text-sm font-mono">10</span>
+            {/* Level Tower metric tracker */}
+            <div className="text-left space-y-1">
+              <span className="text-gray-500 text-[10px] font-black uppercase tracking-wider block font-sans">المستوى الحالي</span>
+              <div className="flex items-center gap-1.5 justify-end">
+                <span className="text-3xl font-black text-gray-200 font-mono">{currentStep}</span>
+                <span className="text-gray-600 text-lg">/</span>
+                <span className="text-gray-400 font-bold font-mono text-base">10</span>
               </div>
             </div>
           </div>
 
-          {/* Quick steps dots */}
-          <div className="flex justify-between mt-4 pt-4 border-t border-gray-950/60">
-            {STEP_MULTIPLIERS.map((s) => (
-              <div 
-                key={s.step} 
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  s.step === currentStep 
-                    ? `w-4 ${is1x ? 'bg-blue-500' : 'bg-amber-400'}` 
-                    : s.step < currentStep
-                      ? `w-1.5 ${is1x ? 'bg-blue-900/60' : 'bg-amber-900/60'}`
-                      : 'w-1.5 bg-gray-800'
-                }`}
-              />
-            ))}
+          {/* Luxury Tower Charge indicator levels */}
+          <div className="flex justify-between gap-1 mt-5 pt-4 border-t border-white/5">
+            {STEP_MULTIPLIERS.map((s) => {
+              const isCurrent = s.step === currentStep;
+              const isPassed = s.step < currentStep;
+              return (
+                <div 
+                  key={s.step} 
+                  className="flex-1 flex flex-col items-center gap-1.5"
+                >
+                  <div 
+                    className={`w-full h-2 rounded-full transition-all duration-500 ${
+                      isCurrent 
+                        ? 'shadow-[0_0_10px_rgba(220,38,38,0.8)] bg-red-500' 
+                        : isPassed
+                          ? 'bg-red-900/50'
+                          : 'bg-white/5'
+                    }`}
+                  />
+                  <span className={`text-[8px] font-mono font-bold ${isCurrent ? 'text-white' : 'text-gray-600'}`}>
+                    {s.multiplier.toFixed(1)}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        {/* --- SCANNING/PROCESSING BAR --- */}
+        {/* --- PREMIUM RADAR SCANNING HUD --- */}
         <AnimatePresence>
           {isScanning && (
             <motion.div 
@@ -506,39 +495,44 @@ export default function ApplePredictor({ provider, userId, onSignOut }: ApplePre
               exit={{ height: 0, opacity: 0 }}
               className="w-full mb-6 overflow-hidden"
             >
-              <div className="bg-black/30 backdrop-blur-md border border-white/10 rounded-xl p-3 flex flex-col gap-2">
-                <div className="flex justify-between text-[11px] font-bold text-gray-400 px-1">
-                  <span className="animate-pulse">جاري سحب ثغرة الخادم وتعدين التفاحة الآمنة...</span>
-                  <span className="font-mono text-amber-400">{scanProgress}%</span>
+              <div className="bg-transparent border border-red-500/10 rounded-2xl p-4 flex flex-col gap-3">
+                <div className="flex justify-between items-center text-[10px] font-black px-1">
+                  <span className="animate-pulse text-gray-300 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
+                    جاري اختراق خوادم اللعبة وبث التوقعات...
+                  </span>
+                  <span className="font-mono text-red-400 bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20">{scanProgress}%</span>
                 </div>
-                <div className="w-full h-1.5 bg-gray-950 rounded-full overflow-hidden">
-                  <div className={`h-full rounded-full transition-all duration-100 ${progressBg}`} style={{ width: `${scanProgress}%` }} />
+                <div className="w-full h-2 bg-black rounded-full overflow-hidden p-[1px] border border-red-500/10">
+                  <div className={`h-full rounded-full transition-all duration-100 ${progressBg} relative`} style={{ width: `${scanProgress}%` }}>
+                    <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.25)_50%,transparent_100%)] animate-shimmer" style={{ backgroundSize: '200% 100%' }} />
+                  </div>
                 </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* --- DATABASE LOADING / RESETTING STATUS --- */}
+        {/* --- LIVE STATUS PILL --- */}
         {userId === '1729018123' && (isLoadingFirebase || firebaseError) && (
-          <div className="w-full mb-4 px-3 py-2.5 rounded-xl bg-black/30 backdrop-blur-md border border-white/10 flex justify-between items-center text-xs font-sans">
+          <div className="w-full mb-5 px-4 py-3 rounded-2xl bg-transparent border border-red-500/10 flex justify-between items-center text-xs font-sans">
             {isLoadingFirebase ? (
-              <span className="text-amber-400 flex items-center gap-2">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+              <span className="text-red-400 flex items-center gap-2 font-medium">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
                 </span>
-                جاري الاتصال بالخادم وتحديث التوقعات...
+                جاري جلب توقعات السيرفر الحية...
               </span>
             ) : (
-              <span className="text-red-400 flex items-center gap-1.5">
+              <span className="text-red-400 flex items-center gap-2 font-medium">
                 ⚠️ {firebaseError}
               </span>
             )}
             {firebaseError && (
               <button 
                 onClick={fetchFirebaseData}
-                className="text-amber-400 underline font-bold cursor-pointer hover:text-amber-300 px-2.5 py-1 bg-amber-500/10 rounded-lg text-[11px]"
+                className="text-red-400 hover:text-red-300 px-3 py-1 bg-red-500/10 hover:bg-red-500/20 transition-all rounded-lg text-[11px] font-black border border-red-500/20"
               >
                 تحديث
               </button>
@@ -546,92 +540,83 @@ export default function ApplePredictor({ provider, userId, onSignOut }: ApplePre
           </div>
         )}
 
-        {/* --- APPLE SLOTS BOARD (خمس خانات للتفاحات) --- */}
+        {/* --- CORE TARGET SCANNING 5-SLOTS DISPLAY BOARD --- */}
         <div className="w-full mb-6">
-          <div className="flex items-center justify-between px-2 mb-2">
-            <span className="text-xs font-bold text-gray-500">لوحة التنبؤ خماسية المسارات (5 Slots)</span>
-            <span className="text-xs font-semibold text-gray-400">اختر التفاحة الذهبية المضيئة</span>
+          <div className="flex items-center justify-between px-2 mb-3">
+            <span className="text-[10px] font-black text-gray-500 uppercase tracking-wider font-sans">المسارات الخماسية (5 Safe Lanes)</span>
+            <span className="text-[10px] font-black text-gray-400 bg-white/5 px-2 py-0.5 rounded border border-white/5 font-sans">اختر التفاح المضيء فقط</span>
           </div>
 
-          <div className="grid grid-cols-5 gap-2.5">
+          <div className="grid grid-cols-5 gap-3">
             {slots.map((status, index) => {
               const isSafe = status === 'safe';
               const isBad = status === 'bad';
 
-              // Decide border style and background depending on safety/danger
-              let borderStyle = 'border-gray-900 bg-[#07070c]';
+              let borderStyle = 'border-white/5 bg-transparent hover:bg-white/5 hover:border-white/10';
               if (isSafe) {
-                borderStyle = `${borderClass} ${glowShadow} scale-[1.05] bg-emerald-950/20`;
+                borderStyle = `${borderClass} bg-red-950/20 ${glowShadow} scale-[1.04]`;
               } else if (isBad) {
-                borderStyle = 'border-red-600/60 shadow-[0_0_15px_rgba(220,38,38,0.2)] scale-[1.02] bg-red-950/20';
+                borderStyle = 'border-red-600 bg-red-950/15 shadow-[0_0_20px_rgba(239,68,68,0.2)] scale-[1.02]';
               }
 
               return (
                 <div
                   key={index}
-                  className={`relative aspect-square rounded-2xl flex flex-col items-center justify-center border-2 transition-all duration-500 ${borderStyle}`}
+                  className={`relative aspect-square rounded-full flex flex-col items-center justify-center border-2 overflow-hidden transition-all duration-500 ${borderStyle}`}
                 >
-                  {/* Decorative index number */}
-                  <span className="absolute top-1 right-2 text-[9px] font-mono font-bold text-gray-600">
-                    {index + 1}
-                  </span>
+                  {/* Digital channel indexing */}
+                  {!isSafe && !isBad && (
+                    <span className="absolute top-1.5 right-2 text-[9px] font-mono font-black text-gray-600">
+                      {index + 1}
+                    </span>
+                  )}
 
-                  {/* Prediction graphics */}
+                  {/* High fidelity assets renderer */}
                   <AnimatePresence mode="wait">
                     {isSafe ? (
                       <motion.div
                         key="apple-golden"
-                        initial={{ scale: 0, rotate: -45 }}
+                        initial={{ scale: 0, rotate: -30 }}
                         animate={{ scale: 1, rotate: 0 }}
-                        className="flex flex-col items-center justify-center"
+                        transition={{ type: "spring", damping: 12, stiffness: 150 }}
+                        className="w-full h-full relative p-1 flex items-center justify-center"
                       >
-                        {/* Golden Glowing Apple Symbol */}
-                        <div className="relative">
-                          <img
-                            src="https://video11.rf.gd/apple.png"
-                            alt="Safe Apple"
-                            className={`w-12 h-12 object-contain filter ${is1x ? 'drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]' : 'drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]'}`}
-                            referrerPolicy="no-referrer"
-                          />
-                          <span className="absolute -top-1 -left-1 animate-ping text-[10px]">✨</span>
-                        </div>
-                        {/* VIP label */}
-                        <span className={`text-[9px] font-black tracking-wider uppercase mt-1 ${is1x ? 'text-blue-400' : 'text-amber-400'}`}>
-                          SAFE
-                        </span>
+                        <img
+                          src="https://video11.rf.gd/apple.png"
+                          alt="Safe Apple"
+                          className="w-full h-full object-contain filter drop-shadow-[0_0_12px_rgba(239,68,68,0.95)]"
+                          referrerPolicy="no-referrer"
+                        />
+                        <span className="absolute top-1 left-1 animate-bounce text-[10px] select-none z-10">✨</span>
                       </motion.div>
                     ) : isBad ? (
                       <motion.div
                         key="apple-bad"
-                        initial={{ scale: 0, rotate: 45 }}
+                        initial={{ scale: 0, rotate: 30 }}
                         animate={{ scale: 1, rotate: 0 }}
-                        className="flex flex-col items-center justify-center"
+                        transition={{ type: "spring", damping: 12, stiffness: 150 }}
+                        className="w-full h-full relative p-1.5 flex items-center justify-center"
                       >
-                        <div className="relative">
-                          <img
-                            src="https://video11.rf.gd/poi.png"
-                            alt="Bad Apple"
-                            className="w-11 h-11 object-contain filter drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]"
-                            referrerPolicy="no-referrer"
-                          />
-                        </div>
-                        <span className="text-[9px] font-black tracking-wider uppercase mt-1 text-red-500">
-                          BAD
-                        </span>
+                        <img
+                          src="https://video11.rf.gd/poi.png"
+                          alt="Bad Apple"
+                          className="w-full h-full object-contain filter drop-shadow-[0_0_10px_rgba(239,68,68,0.7)]"
+                          referrerPolicy="no-referrer"
+                        />
                       </motion.div>
                     ) : isScanning ? (
                       <motion.div
                         key="scanning-slot"
-                        animate={{ opacity: [0.3, 1, 0.3], scale: [0.95, 1.05, 0.95] }}
-                        transition={{ repeat: Infinity, duration: 0.8, delay: index * 0.1 }}
-                        className="text-gray-700 text-lg font-mono font-bold"
+                        animate={{ opacity: [0.3, 1, 0.3], scale: [0.93, 1.05, 0.93] }}
+                        transition={{ repeat: Infinity, duration: 0.8, delay: index * 0.12 }}
+                        className="text-red-500/50 text-xl font-black font-mono select-none"
                       >
                         ?
                       </motion.div>
                     ) : (
                       <motion.div
                         key="apple-placeholder"
-                        className="flex flex-col items-center justify-center opacity-25"
+                        className="flex flex-col items-center justify-center opacity-30 group-hover:opacity-50 transition-opacity"
                       >
                         <span className="text-xl font-mono font-black text-gray-500">?</span>
                       </motion.div>
@@ -643,15 +628,15 @@ export default function ApplePredictor({ provider, userId, onSignOut }: ApplePre
           </div>
         </div>
 
-        {/* --- BUTTONS SECTION --- */}
-        <div className="grid grid-cols-2 gap-3 w-full mb-8">
-          {/* 1. START / NEXT STEP BUTTON */}
+        {/* --- DASHBOARD ACTIONS SECTION --- */}
+        <div className="grid grid-cols-2 gap-4 w-full mb-8">
+          {/* Action 1: Predict / Advance level */}
           <button
             id="btn-predictor-start"
             onClick={activePrediction !== null ? handleNextStep : handleStart}
             disabled={isScanning}
-            className={`py-3.5 px-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-300 shadow-md cursor-pointer ${
-              isScanning ? 'opacity-50 cursor-not-allowed' : `${bgClass} hover:scale-[1.02]`
+            className={`py-4 px-4 rounded-2xl font-black flex items-center justify-center gap-2 transition-all duration-300 shadow-lg cursor-pointer ${
+              isScanning ? 'opacity-40 cursor-not-allowed' : `${bgClass} hover:scale-[1.03] active:scale-[0.98]`
             }`}
           >
             {activePrediction !== null ? (
@@ -662,18 +647,18 @@ export default function ApplePredictor({ provider, userId, onSignOut }: ApplePre
             ) : (
               <>
                 <span>ابدأ التحليل</span>
-                <Play className="w-4 h-4 fill-current" />
+                <Play className="w-4 h-4 fill-current animate-pulse" />
               </>
             )}
           </button>
 
-          {/* 2. RESTART BUTTON */}
+          {/* Action 2: Reset algorithm */}
           <button
             id="btn-predictor-restart"
             onClick={handleRestart}
             disabled={isScanning}
-            className={`py-3.5 px-4 rounded-xl font-bold flex items-center justify-center gap-2 bg-black/30 border border-white/10 hover:bg-black/50 text-gray-300 hover:text-white transition-all cursor-pointer ${
-              isScanning ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02]'
+            className={`py-4 px-4 rounded-2xl font-black flex items-center justify-center gap-2 bg-transparent border border-white/5 hover:border-white/10 hover:bg-white/5 text-gray-300 hover:text-white transition-all cursor-pointer ${
+              isScanning ? 'opacity-40 cursor-not-allowed' : 'hover:scale-[1.03] active:scale-[0.98]'
             }`}
           >
             <span>إعادة تعيين</span>
@@ -681,55 +666,51 @@ export default function ApplePredictor({ provider, userId, onSignOut }: ApplePre
           </button>
         </div>
 
-        {/* --- LIVE WINNING LIST FEED (ليست فيو المكاسب الواقعية) --- */}
-        <div className="w-full bg-black/30 backdrop-blur-md border border-white/10 rounded-2xl p-4 shadow-lg overflow-hidden">
-          <div className="flex justify-between items-center mb-3">
+        {/* --- REAL-TIME LIVE WINNING FEED MODULE --- */}
+        <div className="w-full bg-transparent border border-red-500/10 rounded-3xl p-5 overflow-hidden">
+          <div className="flex justify-between items-center mb-4">
             <div className="flex items-center gap-2">
-              <Trophy className="w-4 h-4 text-amber-400" />
-              <h3 className="text-xs font-bold text-gray-300">سجل أرباح المشتركين الحية (مباشر)</h3>
+              <Trophy className="w-4 h-4 text-red-500" />
+              <h3 className="text-xs font-black text-gray-200 font-sans uppercase tracking-wide">أحدث أرباح المشتركين الحية</h3>
             </div>
-            <div className="flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded text-[9px] font-black border border-emerald-500/20">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span>LIVE FEED</span>
+            <div className="flex items-center gap-2 bg-transparent text-red-500 px-2.5 py-1 rounded-lg text-[9px] font-black border border-red-500/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+              <span>LIVE LOG</span>
             </div>
           </div>
 
-          {/* List Wrapper with beautiful scrolling/scannable effect */}
-          <div className="space-y-2 max-h-[175px] overflow-y-auto pr-1">
+          {/* Premium List feed wrapper */}
+          <div className="space-y-2.5 max-h-[190px] overflow-y-auto pr-1">
             <AnimatePresence initial={false}>
               {winnings.map((item) => {
-                const isWinner1x = item.provider === '1xbet';
                 return (
                   <motion.div
                     key={item.id}
-                    initial={{ opacity: 0, x: 20 }}
+                    initial={{ opacity: 0, x: 25 }}
                     animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    className="bg-black/40 border border-gray-900/60 p-2.5 rounded-xl flex items-center justify-between text-xs"
+                    exit={{ opacity: 0, x: -25 }}
+                    transition={{ duration: 0.45 }}
+                    className="bg-transparent hover:bg-white/5 border border-white/5 hover:border-white/10 p-3 rounded-2xl flex items-center justify-between text-xs transition-colors duration-300"
                   >
-                    <div className="flex items-center gap-2.5">
-                      {/* Platform label */}
-                      <span className={`text-[9px] font-mono font-extrabold px-1.5 py-0.5 rounded uppercase border ${
-                        isWinner1x 
-                          ? 'bg-blue-950/40 text-blue-400 border-blue-500/20' 
-                          : 'bg-amber-950/40 text-amber-400 border-amber-500/20'
-                      }`}>
+                    <div className="flex items-center gap-3">
+                      {/* Active platform badge tag */}
+                      <span className="text-[9px] font-mono font-black px-2 py-0.5 rounded uppercase border bg-red-950/40 text-red-400 border-red-500/20">
                         {item.provider}
                       </span>
-                      {/* Masked User ID */}
+                      {/* Masked player tracking ID */}
                       <span className="font-mono font-bold text-gray-300 tracking-wider">
                         {item.userId}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                      {/* Multiplier achieved */}
-                      <span className="text-gray-500 text-[10px] font-semibold">
+                    <div className="flex items-center gap-3.5">
+                      {/* Odds tracking level */}
+                      <span className="text-gray-500 text-[10px] font-bold">
                         أود {item.multiplier.toFixed(2)}x
                       </span>
-                      {/* Amount won */}
-                      <span className="font-mono font-bold text-emerald-400">
-                        +{item.winAmount.toLocaleString()} {isWinner1x ? 'EGP' : 'EGP'}
+                      {/* Real earning result */}
+                      <span className="font-mono font-extrabold text-red-500 tracking-wide">
+                        +{item.winAmount.toLocaleString()} EGP
                       </span>
                     </div>
                   </motion.div>

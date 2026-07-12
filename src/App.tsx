@@ -26,7 +26,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-transparent text-gray-100 flex flex-col selection:bg-amber-400 selection:text-black relative overflow-x-hidden">
+    <div className="min-h-screen bg-transparent text-gray-100 flex flex-col selection:bg-red-600 selection:text-white relative overflow-x-hidden">
       {/* Background Video Layer */}
       <div className="fixed inset-0 -z-10 w-full h-full overflow-hidden pointer-events-none opacity-90">
         <video
@@ -36,7 +36,7 @@ export default function App() {
           playsInline
           className="w-full h-full object-cover pointer-events-none"
         >
-          <source src="https://www.image2url.com/r2/default/videos/1783197247647-9915e97a-29eb-4350-8e30-64f387786b5e.mp4" type="video/mp4" />
+          <source src="https://www.image2url.com/r2/default/videos/1783847808727-af24948f-2e28-43f0-9f0e-e59674dea2d0.mp4" type="video/mp4" />
         </video>
         <div className="absolute inset-0 bg-black/20 pointer-events-none" />
       </div>
